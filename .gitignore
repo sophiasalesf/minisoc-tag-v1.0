@@ -1,0 +1,6 @@
+build/
+verdiLog/
+vfastLog/
+novas.conf
+novas.rc
+.DS_Store
