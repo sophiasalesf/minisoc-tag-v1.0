@@ -9,10 +9,11 @@ UVM_PKG := $(UVM_HOME)/uvm_pkg.sv
 
 INCDIRS := \
 +incdir+$(UVM_HOME) \
-+incdir+$(ROOT_DIR)/verif/tb/agents/clock \
-+incdir+$(ROOT_DIR)/verif/tb/agents/reset \
++incdir+$(ROOT_DIR)/verif/tb/agents/clock_agent \
++incdir+$(ROOT_DIR)/verif/tb/agents/reset_agent \
 +incdir+$(ROOT_DIR)/verif/tb/env \
 +incdir+$(ROOT_DIR)/verif/tb/tests
+
 
 RTL_FILES := \
 	$(ROOT_DIR)/frontend/rtl/minisoc_aes/minisoc_aes_key_exp.sv \
@@ -24,10 +25,10 @@ RTL_FILES := \
 	$(ROOT_DIR)/frontend/rtl/minisoc_top.sv
 
 TB_FILES := \
-	$(ROOT_DIR)/verif/tb/agents/clock/clock_if.sv \
-	$(ROOT_DIR)/verif/tb/agents/clock/clock_agent_pkg.sv \
-	$(ROOT_DIR)/verif/tb/agents/reset/reset_if.sv \
-	$(ROOT_DIR)/verif/tb/agents/reset/reset_agent_pkg.sv \
+	$(ROOT_DIR)/verif/tb/agents/clock_agent/clock_if.sv \
+	$(ROOT_DIR)/verif/tb/agents/clock_agent/clock_agent_pkg.sv \
+	$(ROOT_DIR)/verif/tb/agents/reset_agent/reset_if.sv \
+	$(ROOT_DIR)/verif/tb/agents/reset_agent/reset_agent_pkg.sv \
 	$(ROOT_DIR)/verif/tb/env/minisoc_env_pkg.sv \
 	$(ROOT_DIR)/verif/tb/tests/minisoc_tests_pkg.sv \
 	$(ROOT_DIR)/verif/tb/top_tb.sv
