@@ -16,6 +16,7 @@ class minisoc_smoke_test extends uvm_test;
     env = minisoc_env::type_id::create("env", this);
   endfunction
 
+
   task run_phase(uvm_phase phase);
 
     clock_sequence clk_seq;
@@ -31,21 +32,9 @@ class minisoc_smoke_test extends uvm_test;
     rst_seq = reset_sequence::type_id::create("rst_seq");
     rst_seq.start(env.rst_agent.sequencer);
 
-    // Confere se o reset terminou liberado
-    if (env.rst_agent.vif.rst_n == 1'b1)
-      `uvm_info("RESET_CHECK", "reset liberado corretamente", UVM_LOW)
-    else
-      `uvm_error("RESET_CHECK", "reset nao foi liberado")
-
-    // Confere se os checkers receberam amostras
-    if (env.clock_checker.sample_count == 0)
-      `uvm_error("CLOCK_CHECK", "nenhuma amostra de clock foi observada")
-
-    if (env.reset_checker.sample_count == 0)
-      `uvm_error("RESET_CHECK", "nenhuma amostra de reset foi observada")
-
     phase.drop_objection(this);
 
   endtask
+
 
 endclass : minisoc_smoke_test

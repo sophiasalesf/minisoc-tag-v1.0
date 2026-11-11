@@ -21,4 +21,14 @@ class minisoc_clock_checker extends uvm_subscriber #(clock_item);
 
   endfunction
 
+
+  function void check_phase(uvm_phase phase);
+    super.check_phase(phase);
+
+    // Verifica se o monitor enviou alguma amostra de clock
+    if (sample_count == 0)
+      `uvm_error("CLOCK_CHECK", "nenhuma amostra de clock foi observada")
+
+  endfunction
+
 endclass : minisoc_clock_checker

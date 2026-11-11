@@ -29,6 +29,9 @@ class minisoc_env extends uvm_env;
 
     clk_agent.monitor.ap.connect(clock_checker.analysis_export);
     rst_agent.monitor.ap.connect(reset_checker.analysis_export);
+
+    reset_checker.vif = rst_agent.vif;
+
   endfunction
 
 endclass : minisoc_env
