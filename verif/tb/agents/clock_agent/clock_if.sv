@@ -1,8 +1,9 @@
+
 interface clock_if;
 
   logic clk;
 
-  // usado pelo gerador de clock
+  // usado pelo driver de clock
   modport GEN (
     output clk
   );
