@@ -10,11 +10,7 @@ module top_tb;
 
   clock_if clk_if();
   reset_if rst_if();
-
-  logic spi_sclk;
-  logic spi_cs_n;
-  logic spi_mosi;
-  logic spi_miso;
+  spi_if spi_vif();
 
   logic mem_clk;
   logic [31:0] mem_i_data;
@@ -26,10 +22,10 @@ module top_tb;
     .clk (clk_if.clk),
     .rst_n (rst_if.rst_n),
 
-    .spi_sclk (spi_sclk),
-    .spi_cs_n (spi_cs_n),
-    .spi_mosi (spi_mosi),
-    .spi_miso (spi_miso),
+    .spi_sclk (spi_vif.sclk),
+    .spi_cs_n (spi_vif.cs_n),
+    .spi_mosi (spi_vif.mosi),
+    .spi_miso (spi_vif.miso),
 
     .mem_clk (mem_clk),
     .mem_i_data (mem_i_data),
@@ -39,14 +35,10 @@ module top_tb;
   );
 
   initial begin
-    spi_sclk    = 1'b0;
-    spi_cs_n    = 1'b1;
-    spi_mosi    = 1'b0;
-
-    mem_clk     = 1'b0;
-    mem_i_data  = 32'b0;
+    mem_clk = 1'b0;
+    mem_i_data = 32'b0;
     mem_i_wr_en = 1'b0;
-    mem_i_addr  = 10'b0;
+    mem_i_addr = 10'b0;
   end
 
   initial begin
@@ -63,6 +55,13 @@ module top_tb;
       "uvm_test_top.env.rst_agent",
       "vif",
       rst_if
+    );
+
+    uvm_config_db #(virtual spi_if)::set(
+      null,
+      "uvm_test_top.env.spi_agt",
+      "vif",
+      spi_vif
     );
 
     run_test();

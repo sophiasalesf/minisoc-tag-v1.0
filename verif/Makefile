@@ -1,6 +1,8 @@
 ROOT_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/..)
 BUILD_DIR := $(ROOT_DIR)/build/minisoc_uvm
 
+UVM_TEST ?= minisoc_smoke_test
+
 UVM_HOME := /Tools/synopsys/vcs/X-2025.06-SP2/etc/uvm-1.2
 VLOGAN := /Tools/synopsys/vcs/X-2025.06-SP2/bin/vlogan
 VCS := /Tools/synopsys/vcs/X-2025.06-SP2/bin/vcs
@@ -11,6 +13,7 @@ INCDIRS := \
 +incdir+$(UVM_HOME) \
 +incdir+$(ROOT_DIR)/verif/tb/agents/clock_agent \
 +incdir+$(ROOT_DIR)/verif/tb/agents/reset_agent \
++incdir+$(ROOT_DIR)/verif/tb/agents/spi_agent \
 +incdir+$(ROOT_DIR)/verif/tb/env \
 +incdir+$(ROOT_DIR)/verif/tb/tests
 
@@ -29,6 +32,8 @@ TB_FILES := \
 	$(ROOT_DIR)/verif/tb/agents/clock_agent/clock_agent_pkg.sv \
 	$(ROOT_DIR)/verif/tb/agents/reset_agent/reset_if.sv \
 	$(ROOT_DIR)/verif/tb/agents/reset_agent/reset_agent_pkg.sv \
+	$(ROOT_DIR)/verif/tb/agents/spi_agent/spi_if.sv \
+	$(ROOT_DIR)/verif/tb/agents/spi_agent/spi_agent_pkg.sv \
 	$(ROOT_DIR)/verif/tb/env/minisoc_env_pkg.sv \
 	$(ROOT_DIR)/verif/tb/tests/minisoc_tests_pkg.sv \
 	$(ROOT_DIR)/verif/tb/top_tb.sv
@@ -54,4 +59,4 @@ elab: compile
 .PHONY: run
 
 run: elab
-	cd $(BUILD_DIR) && ./simv_top_dut +UVM_TESTNAME=minisoc_smoke_test
+	cd $(BUILD_DIR) && ./simv_top_dut +UVM_TESTNAME=$(UVM_TEST)
