@@ -3,9 +3,13 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
 
   `uvm_component_utils(minisoc_spi_checker)
 
-  bit [31:0] expected_key0;
-  bit key0_written = 1'b0;
-  bit read_pending = 1'b0;
+  // Valores esperados para KEY0-KEY3 e IV0-IV3
+  bit [31:0] expected_data [0:7];
+  bit        reg_written   [0:7];
+
+  // Controle da leitura SPI em dois frames
+  bit       read_pending = 1'b0;
+  bit [5:0] pending_addr;
 
   int unsigned write_count = 0;
   int unsigned read_count = 0;
@@ -20,45 +24,60 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
 
     frame_count++;
 
-    // Resposta ao pedido de leitura anterior
+    // Verifica a resposta solicitada no frame anterior
     if (read_pending) begin
 
       read_pending = 1'b0;
       read_count++;
 
-      if (t.read_data === expected_key0)
+      if (t.read_data === expected_data[pending_addr])
         `uvm_info("SPI_CHECK",
-                  "Leitura de KEY0 corresponde ao valor escrito",
+                  $sformatf(
+                    "Leitura do endereco 0x%02h correta: 0x%08h",
+                    pending_addr, t.read_data),
                   UVM_LOW)
       else
         `uvm_error("SPI_CHECK",
                    $sformatf(
-                     "KEY0 incorreto: esperado=0x%08h, recebido=0x%08h",
-                     expected_key0, t.read_data))
+                     "Endereco 0x%02h incorreto: esperado=0x%08h, recebido=0x%08h",
+                     pending_addr,
+                     expected_data[pending_addr],
+                     t.read_data))
 
     end
 
-    // Escrita no registrador KEY0
-    if (t.rwb == 1'b0 && t.addr == 6'h00) begin
+    // Registradores KEY0-KEY3 e IV0-IV3
+    if (t.addr <= 6'h07) begin
 
-      expected_key0 = t.data;
-      key0_written = 1'b1;
-      write_count++;
+      // Escrita SPI
+      if (t.rwb == 1'b0) begin
 
-      `uvm_info("SPI_CHECK",
-                "Escrita SPI em KEY0 observada",
-                UVM_LOW)
+        expected_data[t.addr] = t.data;
+        reg_written[t.addr] = 1'b1;
+        write_count++;
 
-    end
+        `uvm_info("SPI_CHECK",
+                  $sformatf(
+                    "Escrita observada no endereco 0x%02h: 0x%08h",
+                    t.addr, t.data),
+                  UVM_LOW)
 
-    // Pedido de leitura do registrador KEY0
-    if (t.rwb == 1'b1 && t.addr == 6'h00) begin
+      end
 
-      if (!key0_written)
-        `uvm_error("SPI_CHECK",
-                   "Leitura de KEY0 sem escrita anterior")
-      else
-        read_pending = 1'b1;
+      // Pedido de leitura SPI
+      else begin
+
+        if (!reg_written[t.addr])
+          `uvm_error("SPI_CHECK",
+                     $sformatf(
+                       "Leitura do endereco 0x%02h sem escrita anterior",
+                       t.addr))
+        else begin
+          pending_addr = t.addr;
+          read_pending = 1'b1;
+        end
+
+      end
 
     end
 
@@ -67,24 +86,22 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
   function void check_phase(uvm_phase phase);
     super.check_phase(phase);
 
-    // O smoke de CLOCK/RESET nao executa transacoes SPI
+    // Smoke de CLOCK/RESET nao executa transacoes SPI
     if (frame_count == 0)
       return;
 
-    // Quando ha atividade SPI, verifica o cenario KEY0
     if (write_count == 0)
       `uvm_error("SPI_CHECK",
-                "Nenhuma escrita em KEY0 foi observada")
+                 "Nenhuma escrita SPI foi observada")
 
     if (read_count == 0)
       `uvm_error("SPI_CHECK",
-                "Nenhuma resposta de leitura foi observada")
+                 "Nenhuma resposta de leitura SPI foi observada")
 
     if (read_pending)
       `uvm_error("SPI_CHECK",
-                "Leitura SPI pendente sem resposta")
+                 "Leitura SPI pendente sem resposta")
 
   endfunction
-
 
 endclass : minisoc_spi_checker

@@ -5,8 +5,7 @@ class minisoc_clock_checker extends uvm_subscriber #(clock_item);
 
   int unsigned sample_count = 0;
 
-  function new(string name = "minisoc_clock_checker",
-               uvm_component parent = null);
+  function new(string name = "minisoc_clock_checker", uvm_component parent = null);
     super.new(name, parent);
   endfunction
 
@@ -15,12 +14,11 @@ class minisoc_clock_checker extends uvm_subscriber #(clock_item);
     sample_count++;
 
     if (t.measured_period == 500ps)
-      `uvm_info("CLOCK_CHECK", "clock de 2 GHz correto", UVM_LOW)
+      `uvm_info("CLOCK_CHECK", "clock de 2 GHz correto", UVM_HIGH)
     else
       `uvm_error("CLOCK_CHECK", "periodo do clock incorreto")
 
   endfunction
-
 
   function void check_phase(uvm_phase phase);
     super.check_phase(phase);
@@ -28,6 +26,8 @@ class minisoc_clock_checker extends uvm_subscriber #(clock_item);
     // Verifica se o monitor enviou alguma amostra de clock
     if (sample_count == 0)
       `uvm_error("CLOCK_CHECK", "nenhuma amostra de clock foi observada")
+    else
+      `uvm_info("CLOCK_CHECK", $sformatf("Total de amostras de clock verificadas: %0d", sample_count), UVM_LOW)
 
   endfunction
 

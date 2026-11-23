@@ -22,7 +22,7 @@ class spi_read_sequence extends uvm_sequence #(spi_item);
 
     if (!request_item.randomize() with {
       rwb  == 1'b1;
-      addr == 6'h00;
+      addr == local::read_addr;
       rsv  == 1'b0;
       data == 32'h00000000;
     })
