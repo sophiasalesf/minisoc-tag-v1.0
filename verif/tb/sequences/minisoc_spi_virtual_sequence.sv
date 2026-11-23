@@ -29,7 +29,6 @@ class minisoc_spi_virtual_sequence
       32'hFFFF0155  // NUM_BLOCKS - endereco 0x0A
       };
 
-
     // Cria as sequences por meio da factory UVM
     clk_seq = clock_sequence::type_id::create("clk_seq");
     rst_seq = reset_sequence::type_id::create("rst_seq");
@@ -78,6 +77,10 @@ class minisoc_spi_virtual_sequence
 
     // SYSTEM_STATUS: verifica se o PLL atingiu LOCKED
     spi_read_seq.read_addr = 6'h0F;
+    spi_read_seq.start(p_sequencer.spi_seqr);
+
+    // AES_STATUS: verifica se o AES permanece ocioso sem START
+    spi_read_seq.read_addr = 6'h0C;
     spi_read_seq.start(p_sequencer.spi_seqr);
 
     // VERSION: leitura de registrador somente de leitura

@@ -30,9 +30,13 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
       read_pending = 1'b0;
       read_count++;
 
-      // VERSION possui valor fixo
+      // VERSION: valor fixo
       if (pending_addr == 6'h0D)
         expected_read = 32'h0001_0100;
+
+      // AES_STATUS: estado ocioso, sem comando START
+      else if (pending_addr == 6'h0C)
+        expected_read = 32'h00000000;
 
       // SYSTEM_STATUS: bit 0 indica PLL_LOCKED
       else if (pending_addr == 6'h0F) begin
@@ -100,9 +104,11 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
 
     end
 
-    // VERSION e SYSTEM_STATUS: registradores somente de leitura
+    // AES_STATUS, VERSION e SYSTEM_STATUS: somente leitura
     else if (t.rwb == 1'b1 &&
-             (t.addr == 6'h0D || t.addr == 6'h0F)) begin
+             (t.addr == 6'h0C ||
+              t.addr == 6'h0D ||
+              t.addr == 6'h0F)) begin
 
       pending_addr = t.addr;
       read_pending = 1'b1;
