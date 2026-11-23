@@ -3,8 +3,8 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
   `uvm_component_utils(minisoc_spi_checker)
 
   // Valores esperados para KEY0-KEY3, IV0-IV3 e COUNTER_HI/LO
-  bit [31:0] expected_data [0:10];
-  bit reg_written [0:10];
+  bit [31:0] expected_data [0:11];
+  bit reg_written [0:11];
 
   // Controle da leitura SPI em dois frames
   bit read_pending = 1'b0;
@@ -52,14 +52,19 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
 
     end
 
-    // KEY, IV, COUNTER e NUM_BLOCKS: escrita e leitura
-    if (t.addr <= 6'h0A) begin
+    // KEY, IV, COUNTER, NUM_BLOCKS e AES_CONTROL
+    if (t.addr <= 6'h0B) begin
 
       if (t.rwb == 1'b0) begin
 
         // NUM_BLOCKS armazena somente os 9 bits inferiores
         if (t.addr == 6'h0A)
           expected_data[t.addr] = {23'b0, t.data[8:0]};
+
+        // AES_CONTROL retorna apenas MODE e DECRYPT
+        else if (t.addr == 6'h0B)
+          expected_data[t.addr] = t.data & 32'h0000001E;
+
         else
           expected_data[t.addr] = t.data;
 

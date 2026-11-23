@@ -57,6 +57,15 @@ class minisoc_spi_virtual_sequence
 
     end
 
+    // AES_CONTROL: configura MODE e DECRYPT sem iniciar o AES
+    spi_write_seq.write_addr = 6'h0B;
+    spi_write_seq.write_data = 32'hFFFFFFEA;
+    spi_write_seq.start(p_sequencer.spi_seqr);
+
+    // Le o AES_CONTROL para verificar os bits armazenados
+    spi_read_seq.read_addr = 6'h0B;
+    spi_read_seq.start(p_sequencer.spi_seqr);
+
     // VERSION: leitura de registrador somente de leitura
     spi_read_seq.read_addr = 6'h0D;
     spi_read_seq.start(p_sequencer.spi_seqr);
