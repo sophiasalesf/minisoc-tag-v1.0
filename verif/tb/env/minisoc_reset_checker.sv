@@ -7,8 +7,7 @@ class minisoc_reset_checker extends uvm_subscriber #(reset_item);
 
   int unsigned sample_count = 0;
 
-  function new(string name = "minisoc_reset_checker",
-               uvm_component parent = null);
+  function new(string name = "minisoc_reset_checker", uvm_component parent = null);
     super.new(name, parent);
   endfunction
 

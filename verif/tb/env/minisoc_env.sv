@@ -22,21 +22,13 @@ class minisoc_env extends uvm_env;
     clk_agent = clock_agent::type_id::create("clk_agent", this);
     rst_agent = reset_agent::type_id::create("rst_agent", this);
     spi_agt = spi_agent::type_id::create("spi_agt", this);
-    virtual_sequencer = minisoc_virtual_sequencer::type_id::create(
-      "virtual_sequencer", this
-    );
+    virtual_sequencer = minisoc_virtual_sequencer::type_id::create("virtual_sequencer", this);
 
-    clock_checker = minisoc_clock_checker::type_id::create(
-      "clock_checker", this
-    );
+    clock_checker = minisoc_clock_checker::type_id::create("clock_checker", this);
 
-    reset_checker = minisoc_reset_checker::type_id::create(
-      "reset_checker", this
-    );
+    reset_checker = minisoc_reset_checker::type_id::create("reset_checker", this);
 
-    spi_checker = minisoc_spi_checker::type_id::create(
-      "spi_checker", this
-    );
+    spi_checker = minisoc_spi_checker::type_id::create("spi_checker", this);
   endfunction
 
   function void connect_phase(uvm_phase phase);

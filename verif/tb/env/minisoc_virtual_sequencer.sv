@@ -8,8 +8,7 @@ class minisoc_virtual_sequencer extends uvm_sequencer #(uvm_sequence_item);
   reset_sequencer rst_seqr;
   spi_sequencer   spi_seqr;
 
-  function new(string name = "minisoc_virtual_sequencer",
-               uvm_component parent = null);
+  function new(string name = "minisoc_virtual_sequencer", uvm_component parent = null);
     super.new(name, parent);
   endfunction
 
