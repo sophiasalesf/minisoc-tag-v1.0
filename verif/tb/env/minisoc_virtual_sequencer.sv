@@ -1,4 +1,3 @@
-
 class minisoc_virtual_sequencer extends uvm_sequencer #(uvm_sequence_item);
 
   `uvm_component_utils(minisoc_virtual_sequencer)

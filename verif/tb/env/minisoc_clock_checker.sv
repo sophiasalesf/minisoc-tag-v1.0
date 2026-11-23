@@ -1,4 +1,3 @@
-
 class minisoc_clock_checker extends uvm_subscriber #(clock_item);
 
   `uvm_component_utils(minisoc_clock_checker)

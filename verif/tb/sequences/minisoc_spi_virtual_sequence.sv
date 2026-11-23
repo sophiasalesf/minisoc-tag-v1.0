@@ -1,4 +1,3 @@
-
 class minisoc_spi_virtual_sequence
   extends minisoc_virtual_base_sequence;
 
@@ -57,6 +56,10 @@ class minisoc_spi_virtual_sequence
       spi_read_seq.start(p_sequencer.spi_seqr);
 
     end
+
+    // VERSION: leitura de registrador somente de leitura
+    spi_read_seq.read_addr = 6'h0D;
+    spi_read_seq.start(p_sequencer.spi_seqr);
 
   endtask
 

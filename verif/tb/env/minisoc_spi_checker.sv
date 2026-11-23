@@ -1,4 +1,3 @@
-
 class minisoc_spi_checker extends uvm_subscriber #(spi_item);
 
   `uvm_component_utils(minisoc_spi_checker)
@@ -21,6 +20,8 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
 
   function void write(spi_item t);
 
+    bit [31:0] expected_read;
+
     frame_count++;
 
     // Verifica a resposta solicitada no frame anterior
@@ -29,7 +30,13 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
       read_pending = 1'b0;
       read_count++;
 
-      if (t.read_data === expected_data[pending_addr])
+      // VERSION possui valor fixo e nao depende de escrita anterior
+      if (pending_addr == 6'h0D)
+        expected_read = 32'h0001_0100;
+      else
+        expected_read = expected_data[pending_addr];
+
+      if (t.read_data === expected_read)
         `uvm_info("SPI_CHECK",
                   $sformatf(
                     "Leitura do endereco 0x%02h correta: 0x%08h",
@@ -40,15 +47,14 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
                    $sformatf(
                      "Endereco 0x%02h incorreto: esperado=0x%08h, recebido=0x%08h",
                      pending_addr,
-                     expected_data[pending_addr],
+                     expected_read,
                      t.read_data))
 
     end
 
-    // Registradores KEY0-KEY3, IV0-IV3 e COUNTER_HI/LO
+    // KEY, IV, COUNTER e NUM_BLOCKS: escrita e leitura
     if (t.addr <= 6'h0A) begin
 
-      // Escrita SPI
       if (t.rwb == 1'b0) begin
 
         // NUM_BLOCKS armazena somente os 9 bits inferiores
@@ -63,8 +69,6 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
         `uvm_info("SPI_CHECK", $sformatf("Escrita observada no endereco 0x%02h: 0x%08h", t.addr, t.data), UVM_LOW)
 
       end
-
-      // Pedido de leitura SPI
       else begin
 
         if (!reg_written[t.addr])
@@ -75,6 +79,14 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
         end
 
       end
+
+    end
+
+    // VERSION: registrador somente de leitura
+    else if (t.rwb == 1'b1 && t.addr == 6'h0D) begin
+
+      pending_addr = t.addr;
+      read_pending = 1'b1;
 
     end
 

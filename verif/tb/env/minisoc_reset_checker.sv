@@ -1,4 +1,3 @@
-
 class minisoc_reset_checker extends uvm_subscriber #(reset_item);
 
   `uvm_component_utils(minisoc_reset_checker)
