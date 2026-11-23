@@ -62,8 +62,22 @@ class minisoc_spi_virtual_sequence
     spi_write_seq.write_data = 32'hFFFFFFEA;
     spi_write_seq.start(p_sequencer.spi_seqr);
 
+
     // Le o AES_CONTROL para verificar os bits armazenados
     spi_read_seq.read_addr = 6'h0B;
+    spi_read_seq.start(p_sequencer.spi_seqr);
+
+    // SYSTEM_CONTROL: habilita o PLL com divisor /8
+    spi_write_seq.write_addr = 6'h0E;
+    spi_write_seq.write_data = 32'h0000000E;
+    spi_write_seq.start(p_sequencer.spi_seqr);
+
+    // Le SYSTEM_CONTROL para verificar a configuracao
+    spi_read_seq.read_addr = 6'h0E;
+    spi_read_seq.start(p_sequencer.spi_seqr);
+
+    // SYSTEM_STATUS: verifica se o PLL atingiu LOCKED
+    spi_read_seq.read_addr = 6'h0F;
     spi_read_seq.start(p_sequencer.spi_seqr);
 
     // VERSION: leitura de registrador somente de leitura

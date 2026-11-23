@@ -3,8 +3,8 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
   `uvm_component_utils(minisoc_spi_checker)
 
   // Valores esperados para KEY0-KEY3, IV0-IV3 e COUNTER_HI/LO
-  bit [31:0] expected_data [0:11];
-  bit reg_written [0:11];
+  bit [31:0] expected_data [0:14];
+  bit reg_written [0:14];
 
   // Controle da leitura SPI em dois frames
   bit read_pending = 1'b0;
@@ -30,9 +30,18 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
       read_pending = 1'b0;
       read_count++;
 
-      // VERSION possui valor fixo e nao depende de escrita anterior
+      // VERSION possui valor fixo
       if (pending_addr == 6'h0D)
         expected_read = 32'h0001_0100;
+
+      // SYSTEM_STATUS: bit 0 indica PLL_LOCKED
+      else if (pending_addr == 6'h0F) begin
+        if (reg_written[14])
+          expected_read = {31'b0, expected_data[14][1]};
+        else
+          expected_read = 32'b0;
+      end
+
       else
         expected_read = expected_data[pending_addr];
 
@@ -52,8 +61,8 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
 
     end
 
-    // KEY, IV, COUNTER, NUM_BLOCKS e AES_CONTROL
-    if (t.addr <= 6'h0B) begin
+    // Registradores de configuracao SPI
+    if (t.addr <= 6'h0B || t.addr == 6'h0E) begin
 
       if (t.rwb == 1'b0) begin
 
@@ -64,6 +73,10 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
         // AES_CONTROL retorna apenas MODE e DECRYPT
         else if (t.addr == 6'h0B)
           expected_data[t.addr] = t.data & 32'h0000001E;
+
+        // SYSTEM_CONTROL armazena apenas os bits [3:0]
+        else if (t.addr == 6'h0E)
+          expected_data[t.addr] = t.data & 32'h0000000F;
 
         else
           expected_data[t.addr] = t.data;
@@ -87,8 +100,9 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
 
     end
 
-    // VERSION: registrador somente de leitura
-    else if (t.rwb == 1'b1 && t.addr == 6'h0D) begin
+    // VERSION e SYSTEM_STATUS: registradores somente de leitura
+    else if (t.rwb == 1'b1 &&
+             (t.addr == 6'h0D || t.addr == 6'h0F)) begin
 
       pending_addr = t.addr;
       read_pending = 1'b1;
