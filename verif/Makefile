@@ -15,8 +15,8 @@ INCDIRS := \
 +incdir+$(ROOT_DIR)/verif/tb/agents/reset_agent \
 +incdir+$(ROOT_DIR)/verif/tb/agents/spi_agent \
 +incdir+$(ROOT_DIR)/verif/tb/env \
++incdir+$(ROOT_DIR)/verif/tb/sequences \
 +incdir+$(ROOT_DIR)/verif/tb/tests
-
 
 RTL_FILES := \
 	$(ROOT_DIR)/frontend/rtl/minisoc_aes/minisoc_aes_key_exp.sv \

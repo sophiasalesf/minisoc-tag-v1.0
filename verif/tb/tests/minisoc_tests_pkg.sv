@@ -1,4 +1,3 @@
-
 package minisoc_tests_pkg;
 
   import uvm_pkg::*;
@@ -8,6 +7,9 @@ package minisoc_tests_pkg;
   import reset_agent_pkg::*;
   import spi_agent_pkg::*;
   import minisoc_env_pkg::*;
+
+  `include "minisoc_virtual_base_sequence.sv"
+  `include "minisoc_spi_virtual_sequence.sv"
 
   `include "minisoc_smoke_test.sv"
   `include "minisoc_spi_test.sv"

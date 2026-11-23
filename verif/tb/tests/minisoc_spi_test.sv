@@ -18,34 +18,24 @@ class minisoc_spi_test extends uvm_test;
 
   task run_phase(uvm_phase phase);
 
-    clock_sequence    clk_seq;
-    reset_sequence    rst_seq;
-    spi_sequence      spi_seq;
-    spi_read_sequence spi_read_seq;
+    minisoc_spi_virtual_sequence virtual_seq;
 
     phase.raise_objection(this);
 
-    // Inicia o clock de referencia de 2 GHz
-    clk_seq = clock_sequence::type_id::create("clk_seq");
-    clk_seq.start(env.clk_agent.sequencer);
+    // Cria a virtual sequence que coordena CLOCK, RESET e SPI
+    virtual_seq = minisoc_spi_virtual_sequence::type_id::create(
+      "virtual_seq"
+    );
 
-    // Aplica e libera o reset
-    rst_seq = reset_sequence::type_id::create("rst_seq");
-    rst_seq.start(env.rst_agent.sequencer);
+    // Executa o cenario no virtual sequencer do ambiente
+    virtual_seq.start(env.virtual_sequencer);
 
-    // Escreve 0x12345678 no registrador KEY0
-    spi_seq = spi_sequence::type_id::create("spi_seq");
-    spi_seq.start(env.spi_agt.sequencer);
-
-    `uvm_info("SPI_TEST", "Escrita SPI concluida", UVM_LOW)
-
-    // Solicita a leitura e recebe a resposta SPI
-    spi_read_seq = spi_read_sequence::type_id::create("spi_read_seq");
-    spi_read_seq.start(env.spi_agt.sequencer);
+    `uvm_info("SPI_TEST",
+              "Cenario SPI executado pela virtual sequence",
+              UVM_LOW)
 
     phase.drop_objection(this);
 
   endtask
-
 
 endclass : minisoc_spi_test

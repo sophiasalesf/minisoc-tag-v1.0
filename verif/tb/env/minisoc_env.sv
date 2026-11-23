@@ -5,14 +5,14 @@ class minisoc_env extends uvm_env;
 
   clock_agent clk_agent;
   reset_agent rst_agent;
-  spi_agent   spi_agt;
+  spi_agent spi_agt;
+  minisoc_virtual_sequencer virtual_sequencer;
 
   minisoc_clock_checker clock_checker;
   minisoc_reset_checker reset_checker;
-  minisoc_spi_checker   spi_checker;
+  minisoc_spi_checker spi_checker;
 
-  function new(string name = "minisoc_env",
-               uvm_component parent = null);
+  function new(string name = "minisoc_env", uvm_component parent = null);
     super.new(name, parent);
   endfunction
 
@@ -21,7 +21,10 @@ class minisoc_env extends uvm_env;
 
     clk_agent = clock_agent::type_id::create("clk_agent", this);
     rst_agent = reset_agent::type_id::create("rst_agent", this);
-    spi_agt   = spi_agent::type_id::create("spi_agt", this);
+    spi_agt = spi_agent::type_id::create("spi_agt", this);
+    virtual_sequencer = minisoc_virtual_sequencer::type_id::create(
+      "virtual_sequencer", this
+    );
 
     clock_checker = minisoc_clock_checker::type_id::create(
       "clock_checker", this
@@ -44,6 +47,10 @@ class minisoc_env extends uvm_env;
     spi_agt.monitor.ap.connect(spi_checker.analysis_export);
 
     reset_checker.vif = rst_agent.vif;
+
+    virtual_sequencer.clk_seqr = clk_agent.sequencer;
+    virtual_sequencer.rst_seqr = rst_agent.sequencer;
+    virtual_sequencer.spi_seqr = spi_agt.sequencer;
   endfunction
 
 endclass : minisoc_env

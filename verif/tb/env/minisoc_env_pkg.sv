@@ -11,6 +11,8 @@ package minisoc_env_pkg;
   `include "minisoc_clock_checker.sv"
   `include "minisoc_reset_checker.sv"
   `include "minisoc_spi_checker.sv"
+
+  `include "minisoc_virtual_sequencer.sv"
   `include "minisoc_env.sv"
 
 endpackage : minisoc_env_pkg
