@@ -83,7 +83,12 @@ class minisoc_spi_virtual_sequence
     spi_read_seq.read_addr = 6'h0C;
     spi_read_seq.start(p_sequencer.spi_seqr);
 
-    // VERSION: leitura de registrador somente de leitura
+    // VERSION: tenta escrever em registrador somente de leitura
+    spi_write_seq.write_addr = 6'h0D;
+    spi_write_seq.write_data = 32'hDEADBEEF;
+    spi_write_seq.start(p_sequencer.spi_seqr);
+
+    // VERSION: confirma que o valor fixo nao foi alterado
     spi_read_seq.read_addr = 6'h0D;
     spi_read_seq.start(p_sequencer.spi_seqr);
 
