@@ -46,6 +46,10 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
           expected_read = 32'b0;
       end
 
+      // Enderecos nao implementados retornam zero
+      else if (pending_addr >= 6'h10 && pending_addr <= 6'h3E)
+        expected_read = 32'h00000000;
+
       else
         expected_read = expected_data[pending_addr];
 
@@ -109,6 +113,15 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
              (t.addr == 6'h0C ||
               t.addr == 6'h0D ||
               t.addr == 6'h0F)) begin
+
+      pending_addr = t.addr;
+      read_pending = 1'b1;
+
+    end
+
+    // Leituras de enderecos nao implementados
+    else if (t.rwb == 1'b1 &&
+             t.addr >= 6'h10 && t.addr <= 6'h3E) begin
 
       pending_addr = t.addr;
       read_pending = 1'b1;

@@ -29,6 +29,13 @@ class minisoc_spi_virtual_sequence
       32'hFFFF0155  // NUM_BLOCKS - endereco 0x0A
       };
 
+    // Enderecos nao implementados selecionados para teste
+    bit [5:0] invalid_addrs [0:2] = '{
+      6'h10,
+      6'h20,
+      6'h3E
+    };
+
     // Cria as sequences por meio da factory UVM
     clk_seq = clock_sequence::type_id::create("clk_seq");
     rst_seq = reset_sequence::type_id::create("rst_seq");
@@ -101,6 +108,29 @@ class minisoc_spi_virtual_sequence
     // VERSION: confirma que o valor fixo nao foi alterado
     spi_read_seq.read_addr = 6'h0D;
     spi_read_seq.start(p_sequencer.spi_seqr);
+
+    // Testa escrita e leitura de enderecos nao implementados
+    foreach (invalid_addrs[i]) begin
+
+      // Escrita deve ser ignorada pelo DUT
+      spi_write_seq.write_addr = invalid_addrs[i];
+      spi_write_seq.write_data = 32'hDEADBEEF;
+      spi_write_seq.start(p_sequencer.spi_seqr);
+
+      // Leitura deve retornar zero
+      spi_read_seq.read_addr = invalid_addrs[i];
+      spi_read_seq.start(p_sequencer.spi_seqr);
+
+    end
+
+    // Rele todos os registradores validos para verificar
+    // se as escritas invalidas alteraram algum valor
+    for (int unsigned addr = 0; addr < 16; addr++) begin
+
+      spi_read_seq.read_addr = addr[5:0];
+      spi_read_seq.start(p_sequencer.spi_seqr);
+
+    end
 
   endtask
 
