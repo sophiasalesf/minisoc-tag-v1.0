@@ -14,6 +14,7 @@ INCDIRS := \
 +incdir+$(ROOT_DIR)/verif/tb/agents/clock_agent \
 +incdir+$(ROOT_DIR)/verif/tb/agents/reset_agent \
 +incdir+$(ROOT_DIR)/verif/tb/agents/spi_agent \
++incdir+$(ROOT_DIR)/verif/tb/agents/memory_data_agent \
 +incdir+$(ROOT_DIR)/verif/tb/env \
 +incdir+$(ROOT_DIR)/verif/tb/sequences \
 +incdir+$(ROOT_DIR)/verif/tb/tests
@@ -34,6 +35,8 @@ TB_FILES := \
 	$(ROOT_DIR)/verif/tb/agents/reset_agent/reset_agent_pkg.sv \
 	$(ROOT_DIR)/verif/tb/agents/spi_agent/spi_if.sv \
 	$(ROOT_DIR)/verif/tb/agents/spi_agent/spi_agent_pkg.sv \
+    $(ROOT_DIR)/verif/tb/agents/memory_data_agent/memory_data_if.sv \
+    $(ROOT_DIR)/verif/tb/agents/memory_data_agent/memory_data_agent_pkg.sv \
 	$(ROOT_DIR)/verif/tb/env/minisoc_env_pkg.sv \
 	$(ROOT_DIR)/verif/tb/tests/minisoc_tests_pkg.sv \
 	$(ROOT_DIR)/verif/tb/top_tb.sv
