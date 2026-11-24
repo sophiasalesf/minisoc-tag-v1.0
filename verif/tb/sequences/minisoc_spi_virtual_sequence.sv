@@ -270,6 +270,19 @@ class minisoc_spi_virtual_sequence
     spi_read_seq.request_only = 1'b0;
     spi_read_seq.read_addr = 6'h0D;
     spi_read_seq.start(p_sequencer.spi_seqr);
+    // NOP: tenta escrever no endereco reservado 0x3F
+    spi_write_seq.write_addr = 6'h3F;
+    spi_write_seq.write_data = 32'hFFFFFFFF;
+    spi_write_seq.write_nbits = 40;
+    spi_write_seq.start(p_sequencer.spi_seqr);
+
+    // Confirma que o NOP nao alterou os registradores validos
+    for (int unsigned addr = 0; addr < 16; addr++) begin
+
+      spi_read_seq.read_addr = addr[5:0];
+      spi_read_seq.start(p_sequencer.spi_seqr);
+
+    end
 
   endtask
 
