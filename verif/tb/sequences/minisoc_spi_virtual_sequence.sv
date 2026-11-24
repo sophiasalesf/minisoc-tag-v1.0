@@ -187,6 +187,37 @@ class minisoc_spi_virtual_sequence
 
     end
 
+    // Testa os quatro divisores do PLL
+    for (int unsigned div_sel = 0; div_sel < 4; div_sel++) begin
+
+      // Desabilita o PLL e programa o divisor
+      spi_write_seq.write_addr = 6'h0E;
+      spi_write_seq.write_data = {28'b0, div_sel[1:0], 1'b0, 1'b0};
+      spi_write_seq.start(p_sequencer.spi_seqr);
+
+      // Verifica a configuracao armazenada
+      spi_read_seq.read_addr = 6'h0E;
+      spi_read_seq.start(p_sequencer.spi_seqr);
+
+      // Com PLL desabilitado, PLL_LOCKED deve ser zero
+      spi_read_seq.read_addr = 6'h0F;
+      spi_read_seq.start(p_sequencer.spi_seqr);
+
+      // Habilita o PLL com o divisor selecionado
+      spi_write_seq.write_addr = 6'h0E;
+      spi_write_seq.write_data = {28'b0, div_sel[1:0], 1'b1, 1'b0};
+      spi_write_seq.start(p_sequencer.spi_seqr);
+
+      // Verifica a nova configuracao
+      spi_read_seq.read_addr = 6'h0E;
+      spi_read_seq.start(p_sequencer.spi_seqr);
+
+      // Verifica se o PLL atingiu LOCKED
+      spi_read_seq.read_addr = 6'h0F;
+      spi_read_seq.start(p_sequencer.spi_seqr);
+
+    end
+
   endtask
 
 endclass : minisoc_spi_virtual_sequence
