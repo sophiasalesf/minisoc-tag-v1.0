@@ -79,7 +79,12 @@ class minisoc_spi_virtual_sequence
     spi_read_seq.read_addr = 6'h0F;
     spi_read_seq.start(p_sequencer.spi_seqr);
 
-    // AES_STATUS: verifica se o AES permanece ocioso sem START
+    // AES_STATUS: tenta escrever em registrador somente de leitura
+    spi_write_seq.write_addr = 6'h0C;
+    spi_write_seq.write_data = 32'hDEADBEEF;
+    spi_write_seq.start(p_sequencer.spi_seqr);
+
+    // AES_STATUS: confirma que o AES permanece ocioso sem START
     spi_read_seq.read_addr = 6'h0C;
     spi_read_seq.start(p_sequencer.spi_seqr);
 
