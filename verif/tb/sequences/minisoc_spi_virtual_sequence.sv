@@ -36,6 +36,13 @@ class minisoc_spi_virtual_sequence
       6'h3E
     };
 
+    // Padroes para testar valores-limite dos registradores
+    bit [31:0] boundary_values [0:2] = '{
+      32'h00000000, // Todos os bits em zero
+      32'hFFFFFFFF, // Todos os bits em um
+      32'hAAAA5555  // Padrao alternado de bits
+    };
+
     // Cria as sequences por meio da factory UVM
     clk_seq = clock_sequence::type_id::create("clk_seq");
     rst_seq = reset_sequence::type_id::create("rst_seq");
@@ -125,6 +132,54 @@ class minisoc_spi_virtual_sequence
 
     // Rele todos os registradores validos para verificar
     // se as escritas invalidas alteraram algum valor
+    for (int unsigned addr = 0; addr < 16; addr++) begin
+
+      spi_read_seq.read_addr = addr[5:0];
+      spi_read_seq.start(p_sequencer.spi_seqr);
+
+    end
+    // Testa valores-limite em KEY, IV, COUNTER e NUM_BLOCKS
+    foreach (boundary_values[p]) begin
+
+      for (int unsigned addr = 0; addr < 11; addr++) begin
+
+        spi_write_seq.write_addr = addr[5:0];
+        spi_write_seq.write_data = boundary_values[p];
+        spi_write_seq.start(p_sequencer.spi_seqr);
+
+        spi_read_seq.read_addr = addr[5:0];
+        spi_read_seq.start(p_sequencer.spi_seqr);
+
+      end
+
+    end
+
+    // AES_CONTROL: testa mascara de bits sem ativar START
+    spi_write_seq.write_addr = 6'h0B;
+    spi_write_seq.write_data = 32'hFFFFFFFE;
+    spi_write_seq.start(p_sequencer.spi_seqr);
+
+    spi_read_seq.read_addr = 6'h0B;
+    spi_read_seq.start(p_sequencer.spi_seqr);
+
+    // AES_CONTROL: testa todos os campos em zero
+    spi_write_seq.write_addr = 6'h0B;
+    spi_write_seq.write_data = 32'h00000000;
+    spi_write_seq.start(p_sequencer.spi_seqr);
+
+    spi_read_seq.read_addr = 6'h0B;
+    spi_read_seq.start(p_sequencer.spi_seqr);
+
+    // SYSTEM_CONTROL: testa mascara de bits reservados
+    // Mantem PLL habilitado com divisor /8
+    spi_write_seq.write_addr = 6'h0E;
+    spi_write_seq.write_data = 32'hFFFFFFFE;
+    spi_write_seq.start(p_sequencer.spi_seqr);
+
+    spi_read_seq.read_addr = 6'h0E;
+    spi_read_seq.start(p_sequencer.spi_seqr);
+
+    // Confirma integridade de todos os registradores validos
     for (int unsigned addr = 0; addr < 16; addr++) begin
 
       spi_read_seq.read_addr = addr[5:0];
