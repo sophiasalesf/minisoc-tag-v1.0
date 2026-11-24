@@ -17,6 +17,7 @@ class spi_monitor extends uvm_monitor;
 
     bit [39:0] mosi_frame;
     bit [39:0] miso_frame;
+    int unsigned bit_count;
     spi_item item;
 
     forever begin
@@ -26,37 +27,54 @@ class spi_monitor extends uvm_monitor;
 
       mosi_frame = '0;
       miso_frame = '0;
+      bit_count = 0;
 
-      // Observa os 40 bits transmitidos e recebidos
-      for (int i = 39; i >= 0; i--) begin
+      // Observa os bits ate CS_n ser liberado
+      forever begin
 
-        @(posedge vif.sclk);
+        @(posedge vif.sclk or posedge vif.cs_n);
 
-        // Captura MOSI na borda de subida
-        mosi_frame[i] = vif.mosi;
+        // CS_n alto encerra o frame, completo ou nao
+        if (vif.cs_n === 1'b1)
+          break;
 
-        // Captura MISO durante a fase alta do clock
-        #1ns;
-        miso_frame[i] = vif.miso;
+        if (bit_count < 40) begin
+
+          // Captura MOSI na borda de subida
+          mosi_frame[39 - bit_count] = vif.mosi;
+
+          // Captura MISO durante o nivel alto
+          #1ns;
+          miso_frame[39 - bit_count] = vif.miso;
+
+          bit_count++;
+
+        end
+        else begin
+          `uvm_error("SPI_MON", "Frame SPI excedeu 40 bits")
+        end
 
       end
 
-      // Aguarda o encerramento do frame
-      @(posedge vif.cs_n);
-
-      // Reconstrói os campos observados
+      // Cria um item com a quantidade observada de bits
       item = spi_item::type_id::create("item");
 
-      item.rwb  = mosi_frame[39];
+      item.nbits = bit_count;
+      item.rwb = mosi_frame[39];
       item.addr = mosi_frame[38:33];
-      item.rsv  = mosi_frame[32];
+      item.rsv = mosi_frame[32];
       item.data = mosi_frame[31:0];
 
-      // Guarda o dado recebido pela linha MISO
-      item.read_data = miso_frame[31:0];
+      if (bit_count == 40)
+        item.read_data = miso_frame[31:0];
+      else
+        item.read_data = 32'b0;
 
-      // Publica a transacao observada
+      // Publica o frame observado para o checker
       ap.write(item);
+
+      if (bit_count < 40)
+        `uvm_info("SPI_MON", $sformatf("Frame SPI interrompido apos %0d bits", bit_count), UVM_LOW)
 
     end
 

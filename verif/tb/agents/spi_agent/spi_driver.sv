@@ -31,8 +31,12 @@ class spi_driver extends uvm_driver #(spi_item);
       // Seleciona o dispositivo
       vif.cs_n = 1'b0;
 
-      // Transmite e recebe 40 bits, MSB primeiro
-      for (int i = 39; i >= 0; i--) begin
+      // Garante que a quantidade solicitada seja valida
+      if (item.nbits < 1 || item.nbits > 40)
+        `uvm_fatal("SPI_DRV", "Quantidade invalida de bits no frame SPI")
+
+      // Transmite nbits, sempre comecando pelo MSB
+      for (int i = 39; i >= 40 - int'(item.nbits); i--) begin
 
         vif.mosi = frame[i];
 

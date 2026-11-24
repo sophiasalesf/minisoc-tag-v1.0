@@ -61,6 +61,17 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
 
     bit [31:0] expected_read;
 
+    // Um frame incompleto nao representa comando valido
+    if (t.nbits != 40) begin
+
+      `uvm_info("SPI_CHECK",
+                $sformatf("Frame incompleto ignorado: %0d bits", t.nbits),
+                UVM_LOW)
+
+      return;
+
+    end
+
     frame_count++;
 
     // Verifica a resposta solicitada no frame anterior

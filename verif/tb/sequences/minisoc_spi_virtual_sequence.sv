@@ -38,10 +38,13 @@ class minisoc_spi_virtual_sequence
 
     // Padroes para testar valores-limite dos registradores
     bit [31:0] boundary_values [0:2] = '{
-      32'h00000000, // Todos os bits em zero
-      32'hFFFFFFFF, // Todos os bits em um
-      32'hAAAA5555  // Padrao alternado de bits
+      32'h00000000,
+      32'hFFFFFFFF,
+      32'hAAAA5555
     };
+
+    // Quantidade de bits dos frames SPI interrompidos
+    int unsigned partial_bits [0:2] = '{7, 20, 39};
 
     // Cria as sequences por meio da factory UVM
     clk_seq = clock_sequence::type_id::create("clk_seq");
@@ -229,6 +232,33 @@ class minisoc_spi_virtual_sequence
       spi_read_seq.start(p_sequencer.spi_seqr);
 
     end
+
+    // Verifica frames de escrita interrompidos por CS_n
+    foreach (partial_bits[i]) begin
+
+      // Tenta modificar KEY0 com um frame incompleto
+      spi_write_seq.write_addr = 6'h00;
+      spi_write_seq.write_data = 32'hDEADBEEF;
+      spi_write_seq.write_nbits = partial_bits[i];
+      spi_write_seq.start(p_sequencer.spi_seqr);
+
+      // KEY0 deve continuar zerado apos o reset
+      spi_read_seq.read_addr = 6'h00;
+      spi_read_seq.start(p_sequencer.spi_seqr);
+
+    end
+
+    // Restaura a transmissao normal de 40 bits
+    spi_write_seq.write_nbits = 40;
+
+    // Verifica recuperacao com uma escrita completa
+    spi_write_seq.write_addr = 6'h00;
+    spi_write_seq.write_data = 32'h13579BDF;
+    spi_write_seq.start(p_sequencer.spi_seqr);
+
+    // Agora KEY0 deve refletir a escrita valida
+    spi_read_seq.read_addr = 6'h00;
+    spi_read_seq.start(p_sequencer.spi_seqr);
 
   endtask
 

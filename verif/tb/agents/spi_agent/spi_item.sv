@@ -12,6 +12,10 @@ class spi_item extends uvm_sequence_item;
   // Valor observado na linha MISO
   bit [31:0] read_data;
 
+  // Quantidade de bits efetivamente transmitidos no frame
+  // Um frame SPI completo possui 40 bits
+  int unsigned nbits = 40;
+
   // Mantem o bit reservado em zero
   constraint c_rsv {
     rsv == 1'b0;

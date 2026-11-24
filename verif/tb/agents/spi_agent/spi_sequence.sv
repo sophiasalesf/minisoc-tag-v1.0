@@ -6,6 +6,9 @@ class spi_sequence extends uvm_sequence #(spi_item);
   bit [5:0]  write_addr = 6'h00;
   bit [31:0] write_data = 32'h12345678;
 
+  // Permite transmitir frames de escrita incompletos
+  int unsigned write_nbits = 40;
+
   function new(string name = "spi_sequence");
     super.new(name);
   endfunction
@@ -26,6 +29,8 @@ class spi_sequence extends uvm_sequence #(spi_item);
       data == local::write_data;
     })
       `uvm_fatal("SPI_SEQ", "Falha ao randomizar spi_item")
+
+    item.nbits = write_nbits;
 
     finish_item(item);
 
