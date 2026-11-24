@@ -37,6 +37,9 @@ class minisoc_env extends uvm_env;
     rst_agent.monitor.ap.connect(reset_checker.analysis_export);
     spi_agt.monitor.ap.connect(spi_checker.analysis_export);
 
+    // Envia eventos de reset tambem para o checker SPI
+    rst_agent.monitor.ap.connect(spi_checker.reset_export);
+
     reset_checker.vif = rst_agent.vif;
 
     virtual_sequencer.clk_seqr = clk_agent.sequencer;

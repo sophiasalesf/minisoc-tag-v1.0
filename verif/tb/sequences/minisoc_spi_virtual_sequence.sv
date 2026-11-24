@@ -218,6 +218,18 @@ class minisoc_spi_virtual_sequence
 
     end
 
+    // Aplica um segundo reset apos configurar os registradores
+    rst_seq.start(p_sequencer.rst_seqr);
+
+    // Verifica se todos os registradores voltaram
+    // aos valores definidos pelo RTL para o reset
+    for (int unsigned addr = 0; addr < 16; addr++) begin
+
+      spi_read_seq.read_addr = addr[5:0];
+      spi_read_seq.start(p_sequencer.spi_seqr);
+
+    end
+
   endtask
 
 endclass : minisoc_spi_virtual_sequence

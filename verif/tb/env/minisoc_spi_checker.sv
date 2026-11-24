@@ -1,6 +1,11 @@
+`uvm_analysis_imp_decl(_reset)
+
 class minisoc_spi_checker extends uvm_subscriber #(spi_item);
 
   `uvm_component_utils(minisoc_spi_checker)
+
+  // Entrada para receber eventos do monitor de RESET
+  uvm_analysis_imp_reset #(reset_item, minisoc_spi_checker) reset_export;
 
   // Valores esperados para KEY0-KEY3, IV0-IV3 e COUNTER_HI/LO
   bit [31:0] expected_data [0:14];
@@ -16,6 +21,40 @@ class minisoc_spi_checker extends uvm_subscriber #(spi_item);
 
   function new(string name = "minisoc_spi_checker", uvm_component parent = null);
     super.new(name, parent);
+    reset_export = new("reset_export", this);
+  endfunction
+
+  // Atualiza o modelo esperado quando um reset e observado
+  function void write_reset(reset_item t);
+
+    if (t.assert_reset == 1'b1) begin
+
+      // Inicializa os valores e marcadores de escrita
+      for (int i = 0; i < 15; i++) begin
+        expected_data[i] = 32'b0;
+        reg_written[i] = 1'b0;
+      end
+
+      // Registradores de configuracao possuem valores
+      // definidos mesmo antes da primeira escrita SPI
+      for (int i = 0; i <= 11; i++)
+        reg_written[i] = 1'b1;
+
+      // Valores de reset definidos pelo RTL
+      expected_data[10] = 32'h00000001; // NUM_BLOCKS
+      expected_data[14] = 32'h0000000C; // SYSTEM_CONTROL
+      reg_written[14] = 1'b1;
+
+      // Descarta qualquer leitura pendente do estado anterior
+      read_pending = 1'b0;
+      pending_addr = 6'b0;
+
+      `uvm_info("SPI_CHECK",
+                "Modelo dos registradores reiniciado apos reset",
+                UVM_LOW)
+
+    end
+
   endfunction
 
   function void write(spi_item t);
