@@ -75,7 +75,12 @@ class minisoc_spi_virtual_sequence
     spi_read_seq.read_addr = 6'h0E;
     spi_read_seq.start(p_sequencer.spi_seqr);
 
-    // SYSTEM_STATUS: verifica se o PLL atingiu LOCKED
+    // SYSTEM_STATUS: tenta escrever em registrador somente de leitura
+    spi_write_seq.write_addr = 6'h0F;
+    spi_write_seq.write_data = 32'hDEADBEEF;
+    spi_write_seq.start(p_sequencer.spi_seqr);
+
+    // SYSTEM_STATUS: confirma que o PLL permanece LOCKED
     spi_read_seq.read_addr = 6'h0F;
     spi_read_seq.start(p_sequencer.spi_seqr);
 
