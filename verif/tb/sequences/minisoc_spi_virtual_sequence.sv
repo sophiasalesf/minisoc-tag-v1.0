@@ -260,6 +260,17 @@ class minisoc_spi_virtual_sequence
     spi_read_seq.read_addr = 6'h00;
     spi_read_seq.start(p_sequencer.spi_seqr);
 
+    // Leitura encadeada: solicita KEY0 sem enviar NOP
+    spi_read_seq.request_only = 1'b1;
+    spi_read_seq.read_addr = 6'h00;
+    spi_read_seq.start(p_sequencer.spi_seqr);
+
+    // O pedido de VERSION recebe a resposta anterior de KEY0
+    // O NOP seguinte recebe a resposta de VERSION
+    spi_read_seq.request_only = 1'b0;
+    spi_read_seq.read_addr = 6'h0D;
+    spi_read_seq.start(p_sequencer.spi_seqr);
+
   endtask
 
 endclass : minisoc_spi_virtual_sequence

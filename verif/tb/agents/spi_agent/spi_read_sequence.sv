@@ -6,6 +6,9 @@ class spi_read_sequence extends uvm_sequence #(spi_item);
   bit [5:0]  read_addr = 6'h00;
   bit [31:0] received_data;
 
+  // Permite enviar somente o pedido de leitura, sem o NOP
+  bit request_only = 1'b0;
+
   function new(string name = "spi_read_sequence");
     super.new(name);
   endfunction
@@ -29,6 +32,10 @@ class spi_read_sequence extends uvm_sequence #(spi_item);
       `uvm_fatal("SPI_READ_SEQ", "Falha ao randomizar request_item")
 
     finish_item(request_item);
+
+    // Neste modo, o proximo pedido SPI recebera a resposta
+    if (request_only)
+      return;
 
     // Frame B: fornece clocks para receber a resposta
     response_item = spi_item::type_id::create("response_item");
